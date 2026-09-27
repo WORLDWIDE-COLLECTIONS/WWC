@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WORLDWIDE COLLECTION
 
-## Getting Started
+Production e-commerce storefront + admin console for the clothing label **Worldwide Collection**.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS v4 (design tokens in `src/app/globals.css`)
+- Supabase — Auth, Postgres, Storage
+- Framer Motion, Lucide React
+- Vercel-ready
+
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in Supabase values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Database
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run `supabase/schema.sql` in the Supabase SQL editor. It creates the product
+tables, row-level security policies and the public `product-images` storage
+bucket.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Piece                | Where                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| Catalogue queries    | `src/lib/catalog.ts` (public reads, active products only)    |
+| Admin reads          | `src/lib/admin/queries.ts` (session-scoped)                  |
+| Admin writes         | `src/lib/admin/actions.ts` (server actions)                  |
+| Session guard        | `src/proxy.ts` — `/admin/*` redirects to `/admin/login`      |
+| Cart + WhatsApp cart | `src/lib/cart.ts`, `src/components/commerce/cart-view.tsx`   |
 
-## Learn More
+Create a user in Supabase Auth → Users, then sign in at `/admin/login`.
+Without credentials the app still runs: every page falls back to an
+empty/configure state instead of crashing.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command           | Purpose                          |
+| ----------------- | -------------------------------- |
+| `npm run dev`     | Dev server (Turbopack)           |
+| `npm run build`   | Production build                 |
+| `npm run start`   | Serve the production build       |
+| `npm run lint`    | ESLint                           |
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/
+    (store)/    customer-facing routes: /, /men, /women, /new-arrivals, /search, /product/[id], /cart,
+                /about, /contact, /shipping
+    (admin)/    admin console: /admin, /admin/products, /admin/products/new, /admin/products/[id]/edit
+    (auth)/     /admin/login (own layout, no console chrome)
+    layout.tsx  root layout: fonts, metadata, tokens
+  components/
+    ui/         design system primitives (button, input, badge, modal, drawer, states…)
+    layout/     announcement bar, header, mobile nav, footer, container
+    commerce/   product card, grid, price, collection shell
+    admin/      admin-only composition (sidebar, product form, login form)
+  config/       site, navigation and campaign imagery config
+  lib/
+    supabase/   browser + server clients (@supabase/ssr)
+    utils.ts    cn(), price formatting
+  types/        database-facing types (products, images, sizes, colours)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Storefront content
+
+Hero, category, campaign and gallery imagery is wired through
+`src/config/campaign.ts` (placeholder stock art — swap for the brand shoot).
+Editorial copy for `/about`, `/contact` and `/shipping` lives in the page files
+themselves; the shipping/returns timings are defaults to confirm with the label.
+
+## Environment
+
+See `.env.example`. Supabase credentials are required before data/auth features are enabled.
