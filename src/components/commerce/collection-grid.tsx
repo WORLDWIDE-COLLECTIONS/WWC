@@ -13,6 +13,18 @@ export function CollectionGrid({
   const { toast } = useToast();
 
   const handleQuickAdd = (product: ProductWithRelations) => {
+    const totalStock = product.sizes.reduce((sum, size) => sum + size.stock, 0);
+
+    // Cards already disable the button — guard here so nothing reaches the
+    // cart through a stale or keyboard-driven path.
+    if (product.stock <= 0 && totalStock <= 0) {
+      toast({
+        title: "Sold out",
+        description: `${product.name} is out of stock right now.`,
+      });
+      return;
+    }
+
     const size = product.sizes[0]?.label ?? "OS";
 
     addToCart({

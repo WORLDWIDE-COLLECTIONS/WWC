@@ -56,3 +56,10 @@ export type CollectionFilters = {
   maxPrice?: number;
   sort?: "newest" | "price-asc" | "price-desc" | "featured";
 };
+
+/** Values a customer can actually filter on, derived from the visible scope. */
+export type CatalogueFacets = {
+  sizes: string[];
+  colors: { name: string; hex: string }[];
+  price: { min: number; max: number } | null;
+};

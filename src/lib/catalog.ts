@@ -1,4 +1,5 @@
 import type {
+  CatalogueFacets,
   CollectionFilters,
   ProductCategory,
   ProductWithRelations,
@@ -82,6 +83,104 @@ export async function getProducts(
   if (!rows) return [];
 
   return rows.map(sortRelations);
+}
+
+const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+
+function sizeRank(label: string) {
+  const index = SIZE_ORDER.indexOf(label.trim().toUpperCase());
+  return index === -1 ? SIZE_ORDER.length : index;
+}
+
+function sameSize(selection: string, label: string) {
+  return selection.trim().toLowerCase() === label.trim().toLowerCase();
+}
+
+/**
+ * Narrows an already-scoped catalogue by size, colour and price.
+ *
+ * Sizes and colours live in child tables, so the match happens here rather
+ * than in SQL: one round trip, no `!inner` joins, and the same function works
+ * whether the rows came from Supabase or an in-memory source.
+ */
+export function applyCollectionFilters(
+  products: ProductWithRelations[],
+  filters: CollectionFilters,
+): ProductWithRelations[] {
+  const sizes = filters.sizes ?? [];
+  const colors = filters.colors ?? [];
+  const { minPrice, maxPrice } = filters;
+
+  if (
+    sizes.length === 0 &&
+    colors.length === 0 &&
+    minPrice === undefined &&
+    maxPrice === undefined
+  ) {
+    return products;
+  }
+
+  return products.filter((product) => {
+    if (
+      sizes.length > 0 &&
+      !(product.sizes ?? []).some((size) =>
+        sizes.some((selection) => sameSize(selection, size.label)),
+      )
+    ) {
+      return false;
+    }
+
+    if (
+      colors.length > 0 &&
+      !(product.colors ?? []).some((color) => colors.includes(color.name))
+    ) {
+      return false;
+    }
+
+    const price = Number(product.price);
+    if (minPrice !== undefined && price < minPrice) return false;
+    if (maxPrice !== undefined && price > maxPrice) return false;
+
+    return true;
+  });
+}
+
+/** Sizes, colours and the price bounds actually present in a scope. */
+export function deriveFacets(
+  products: ProductWithRelations[],
+): CatalogueFacets {
+  const sizes = new Set<string>();
+  const colors = new Map<string, { name: string; hex: string }>();
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+
+  for (const product of products) {
+    for (const size of product.sizes ?? []) {
+      if (size.label) sizes.add(size.label);
+    }
+
+    for (const color of product.colors ?? []) {
+      if (!color.name || colors.has(color.name)) continue;
+      colors.set(color.name, { name: color.name, hex: color.hex });
+    }
+
+    const price = Number(product.price);
+    if (Number.isFinite(price)) {
+      min = Math.min(min, price);
+      max = Math.max(max, price);
+    }
+  }
+
+  return {
+    sizes: [...sizes].sort(
+      (a, b) => sizeRank(a) - sizeRank(b) || a.localeCompare(b),
+    ),
+    colors: [...colors.values()].sort((a, b) => a.name.localeCompare(b.name)),
+    price:
+      products.length > 0 && Number.isFinite(min) && Number.isFinite(max)
+        ? { min: Math.floor(min), max: Math.ceil(max) }
+        : null,
+  };
 }
 
 /** Lookup by id (storefront route) or slug (shareable URLs). */

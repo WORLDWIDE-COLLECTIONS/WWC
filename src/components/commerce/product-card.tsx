@@ -43,7 +43,9 @@ export function ProductCard({
   const cover = product.images[0]?.url;
   const secondary = product.images[1]?.url;
   const totalStock = product.sizes.reduce((sum, size) => sum + size.stock, 0);
+  const available = product.stock > 0 ? product.stock : totalStock;
   const soldOut = product.stock <= 0 && totalStock <= 0;
+  const lowStock = !soldOut && available <= 5;
 
   return (
     <motion.article
@@ -103,10 +105,16 @@ export function ProductCard({
               type="button"
               onClick={() => onQuickAdd(product)}
               disabled={soldOut}
-              className="flex h-10 flex-1 items-center justify-center gap-2 bg-chalk/95 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors duration-300 hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 flex-1 items-center justify-center gap-2 bg-chalk/95 px-4 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-ink transition-colors duration-300 hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Plus className="size-3.5" strokeWidth={2} />
-              Quick add
+              {soldOut ? (
+                "Sold out"
+              ) : (
+                <>
+                  <Plus className="size-3.5" strokeWidth={2} />
+                  Quick add
+                </>
+              )}
             </button>
           ) : null}
           <Link
@@ -140,6 +148,19 @@ export function ProductCard({
             size="sm"
           />
         </div>
+
+        <span
+          className={cn(
+            "text-[0.6rem] font-semibold uppercase tracking-[0.18em]",
+            soldOut ? "text-flare" : lowStock ? "text-gilt" : "text-muted",
+          )}
+        >
+          {soldOut
+            ? "Sold out"
+            : lowStock
+              ? `Only ${available} left`
+              : "In stock"}
+        </span>
 
         {product.colors.length > 0 ? (
           <span className="flex items-center gap-1.5 pt-0.5">

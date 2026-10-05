@@ -13,6 +13,9 @@ export type CollectionShellProps = {
   products: ProductWithRelations[];
   emptyTitle: string;
   emptyDescription: string;
+  emptyAction?: { label: string; href: string };
+  /** Filter / sort controls, or a search field on /search. */
+  toolbar?: React.ReactNode;
   footer?: React.ReactNode;
 };
 
@@ -23,20 +26,28 @@ export function CollectionShell({
   products,
   emptyTitle,
   emptyDescription,
+  emptyAction,
+  toolbar,
   footer,
 }: CollectionShellProps) {
   return (
-    <Container className="flex flex-col gap-10 py-12 md:py-16">
+    <Container className="flex flex-col gap-8 py-12 md:py-16">
       <PageHeader
         eyebrow={eyebrow}
         title={title}
         description={description}
       />
 
+      {toolbar}
+
       {products.length > 0 ? (
         <CollectionGrid products={products} />
       ) : (
-        <EmptyState title={emptyTitle} description={emptyDescription} />
+        <EmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          action={emptyAction}
+        />
       )}
 
       {footer}

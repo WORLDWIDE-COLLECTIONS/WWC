@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CollectionShell } from "@/components/commerce/collection-shell";
+import { SearchForm } from "@/components/commerce/search-form";
 import { searchProducts } from "@/lib/catalog";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -26,6 +27,7 @@ export default async function SearchPage(props: PageProps<"/search">) {
           ? `${products.length} result${products.length === 1 ? "" : "s"} across the live catalogue.`
           : "Type a garment, fabric or category to search the catalogue."
       }
+      toolbar={<SearchForm initialQuery={term} className="md:max-w-xl" />}
       products={products}
       emptyTitle={
         !configured
