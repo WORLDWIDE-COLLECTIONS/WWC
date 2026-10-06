@@ -21,9 +21,9 @@ export function CartView() {
     return (
       <EmptyState
         icon={<ShoppingBag className="size-7" />}
-        title="Your cart is empty"
+        title="Your wardrobe is waiting."
         description="Add pieces from the collection and they will show up here, ready for WhatsApp checkout."
-        action={{ label: "Start shopping", href: "/new-arrivals" }}
+        action={{ label: "Continue shopping", href: "/new-arrivals" }}
       />
     );
   }
