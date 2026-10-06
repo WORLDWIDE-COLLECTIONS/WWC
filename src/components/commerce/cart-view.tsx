@@ -22,7 +22,7 @@ export function CartView() {
       <EmptyState
         icon={<ShoppingBag className="size-7" />}
         title="Your wardrobe is waiting."
-        description="Add pieces from the collection and they will show up here, ready for WhatsApp checkout."
+        description="Add pieces from the collection and they will show up here, ready for WhatsApp ordering."
         action={{ label: "Continue shopping", href: "/new-arrivals" }}
       />
     );
@@ -39,25 +39,37 @@ export function CartView() {
       return;
     }
 
-    const lines = cart.map(
-      (item) =>
-        `• ${item.quantity} × ${item.name} (${[
-          `size ${item.size}`,
-          item.color,
-        ]
-          .filter(Boolean)
-          .join(", ")}) — ${formatPrice(item.price * item.quantity)}`,
+    if (cart.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Add items to your cart before checking out.",
+        variant: "error",
+      });
+      return;
+    }
+
+    const itemsLines = cart.map(
+      (item, index) =>
+        `${index + 1}. ${item.name}\nSize: ${item.size}\nColor: ${
+          item.color || "N/A"
+        }\nQuantity: ${item.quantity}\nPrice: ${formatPrice(
+          item.price * item.quantity,
+        )}`,
     );
 
     const message = [
-      "Hi Worldwide Collection! I'd like to order:",
+      "Hello Worldwide Collection 👋",
       "",
-      ...lines,
+      "I'd like to place an order:",
       "",
-      `Subtotal: ${formatPrice(subtotal)}`,
+      ...itemsLines,
       "",
-      "Name:",
-      "Delivery city:",
+      `----------------`,
+      `TOTAL: ${formatPrice(subtotal)}`,
+      "",
+      "Payment and delivery details will be confirmed with Worldwide Collection on WhatsApp.",
+      "",
+      "Please let me know how I can complete the order.",
     ].join("\n");
 
     window.open(
@@ -162,11 +174,11 @@ export function CartView() {
           <ArrowRight className="size-4" />
         </Button>
 
-        <p className="text-center text-xs text-muted">
-          {digits
-            ? "Opens WhatsApp with your order pre-filled."
-            : "Set NEXT_PUBLIC_WHATSAPP_NUMBER to enable checkout."}
-        </p>
+<p className="text-center text-xs text-muted">
+           {digits
+             ? "Opens WhatsApp with your order pre-filled. Payment and delivery details will be confirmed on WhatsApp."
+             : "Set NEXT_PUBLIC_WHATSAPP_NUMBER to enable WhatsApp checkout."}
+         </p>
 
         <div className="rule" />
 
