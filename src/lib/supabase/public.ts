@@ -1,6 +1,7 @@
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { getAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
+import { getMockCatalogClient } from "@/lib/supabase/mock-catalog";
 
 const PRODUCT_SELECT =
   "*, images:product_images(*), sizes:product_sizes(*), colors:product_colors(*)";
@@ -14,6 +15,11 @@ let client: SupabaseClient | null | undefined;
  */
 export function getPublicClient(): SupabaseClient | null {
   if (client !== undefined) return client;
+
+  // TEMPORARY: local mock catalogue for visual verification.
+  if (process.env.WWC_MOCK_CATALOG === "1") {
+    return getMockCatalogClient() as unknown as SupabaseClient;
+  }
 
   const url = getSupabaseUrl();
   const anonKey = getAnonKey();

@@ -41,9 +41,12 @@ export function CartView() {
 
     const lines = cart.map(
       (item) =>
-        `• ${item.quantity} × ${item.name} (${item.size}) — ${formatPrice(
-          item.price * item.quantity,
-        )}`,
+        `• ${item.quantity} × ${item.name} (${[
+          `size ${item.size}`,
+          item.color,
+        ]
+          .filter(Boolean)
+          .join(", ")}) — ${formatPrice(item.price * item.quantity)}`,
     );
 
     const message = [
@@ -99,6 +102,7 @@ export function CartView() {
                   </Link>
                   <span className="text-xs uppercase tracking-[0.16em] text-muted">
                     Size {item.size}
+                    {item.color ? ` · ${item.color}` : ""}
                   </span>
                 </div>
                 <button

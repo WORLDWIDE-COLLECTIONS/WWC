@@ -7,6 +7,7 @@ export type CartItem = {
   price: number;
   image: string | null;
   size: string;
+  color: string | null;
   quantity: number;
 };
 
@@ -16,6 +17,7 @@ export type CartInput = {
   price: number;
   image?: string | null;
   size: string;
+  color?: string | null;
   quantity?: number;
 };
 
@@ -47,13 +49,19 @@ function load() {
     if (!raw) return;
     const parsed: unknown = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      items = parsed.filter(
-        (row): row is CartItem =>
-          Boolean(row) &&
-          typeof (row as CartItem).productId === "string" &&
-          typeof (row as CartItem).name === "string" &&
-          typeof (row as CartItem).quantity === "number",
-      );
+      items = parsed
+        .filter(
+          (row): row is CartItem =>
+            Boolean(row) &&
+            typeof (row as CartItem).productId === "string" &&
+            typeof (row as CartItem).name === "string" &&
+            typeof (row as CartItem).quantity === "number",
+        )
+        .map((row) => ({
+          ...row,
+          size: row.size || "OS",
+          color: typeof row.color === "string" ? row.color : null,
+        }));
     }
   } catch {
     items = EMPTY;
@@ -81,7 +89,8 @@ function getServerSnapshot() {
 
 export function addToCart(input: CartInput) {
   const size = input.size || "OS";
-  const key = `${input.productId}:${size}`;
+  const color = input.color?.trim() || null;
+  const key = [input.productId, size, color ?? ""].join(":");
   const existing = items.find((item) => item.key === key);
 
   if (existing) {
@@ -100,6 +109,7 @@ export function addToCart(input: CartInput) {
         price: input.price,
         image: input.image ?? null,
         size,
+        color,
         quantity: input.quantity ?? 1,
       },
     ];

@@ -5,10 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const currency = process.env.NEXT_PUBLIC_CURRENCY ?? "NGN";
+const wholeUnits = currency === "NGN";
+
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
-  currency: process.env.NEXT_PUBLIC_CURRENCY ?? "USD",
-  minimumFractionDigits: 2,
+  currency,
+  currencyDisplay: "narrowSymbol",
+  minimumFractionDigits: wholeUnits ? 0 : 2,
+  maximumFractionDigits: wholeUnits ? 0 : 2,
 });
 
 export function formatPrice(amount: number) {

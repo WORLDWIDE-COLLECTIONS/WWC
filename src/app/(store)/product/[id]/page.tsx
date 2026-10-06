@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 import { Container } from "@/components/layout/container";
+import { CollectionGrid } from "@/components/commerce/collection-grid";
 import { ProductDetail } from "@/components/commerce/product-detail";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Reveal } from "@/components/ui/motion";
-import { getProduct } from "@/lib/catalog";
+import { getProduct, getRelatedProducts } from "@/lib/catalog";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { siteConfig } from "@/config/site";
 
@@ -67,8 +68,10 @@ export default async function ProductPage(
     );
   }
 
+  const related = await getRelatedProducts(product, 4);
+
   return (
-    <Container className="flex flex-col gap-8 py-10 md:py-14">
+    <Container className="flex flex-col gap-10 py-10 md:gap-14 md:py-14">
       <Link
         href="/new-arrivals"
         className="eyebrow inline-flex w-fit items-center gap-2 text-graphite transition-colors hover:text-ink"
@@ -80,6 +83,33 @@ export default async function ProductPage(
       <Reveal variant="fade">
         <ProductDetail product={product} />
       </Reveal>
+
+      {related.length > 0 ? (
+        <Reveal
+          variant="fade"
+          className="flex flex-col gap-6 border-t border-line pt-10 md:pt-14"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <p className="eyebrow text-gilt">You may also like</p>
+              <h2 className="display-3">Complete the look</h2>
+            </div>
+
+            <Link
+              href={`/${product.category}`}
+              className="eyebrow group inline-flex items-center gap-2 text-graphite transition-colors hover:text-ink"
+            >
+              View all {product.category === "men" ? "men" : "women"}
+              <ArrowUpRight
+                className="size-3.5 transition-transform duration-300 ease-editorial group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                strokeWidth={1.5}
+              />
+            </Link>
+          </div>
+
+          <CollectionGrid products={related} />
+        </Reveal>
+      ) : null}
     </Container>
   );
 }

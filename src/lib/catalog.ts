@@ -208,6 +208,32 @@ export async function getProduct(
   return row ? sortRelations(row) : null;
 }
 
+/** Pieces shown under a product page — same category, never the product itself. */
+export async function getRelatedProducts(
+  product: Pick<ProductWithRelations, "id" | "category">,
+  limit = 4,
+): Promise<ProductWithRelations[]> {
+  const supabase = getPublicClient();
+  if (!supabase) return [];
+
+  const rows = await run(
+    supabase
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("status", "active")
+      .eq("category", product.category)
+      .neq("id", product.id)
+      .order("is_featured", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(limit)
+      .returns<ProductWithRelations[]>(),
+  );
+
+  if (!rows) return [];
+
+  return rows.filter((row) => row.id !== product.id).map(sortRelations);
+}
+
 /** Free-text catalogue search across name, slug and description. */
 export async function searchProducts(
   term: string,

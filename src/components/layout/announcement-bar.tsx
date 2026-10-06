@@ -1,6 +1,6 @@
 const messages = [
   "Worldwide Collection",
-  "Free shipping over $150",
+  "Free shipping over ₦150,000",
   "New season, new silhouettes",
   "Designed everywhere · worn anywhere",
   "MEN'S & WOMEN'S ESSENTIALS",
