@@ -5,10 +5,8 @@ import { redirect } from "next/navigation";
 
 import type { ProductCategory, ProductStatus } from "@/types/product";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import {
-  createAdminClient,
-  maybeCreateClient,
-} from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
+import { createAuthClient } from "@/lib/supabase/auth";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ActionResult =
@@ -62,7 +60,7 @@ async function getWriter(): Promise<
     };
   }
 
-  const sessionClient = await maybeCreateClient();
+  const sessionClient = await createAuthClient();
   if (!sessionClient) return { ok: false, error: "Supabase is not configured." };
 
   const {
@@ -327,7 +325,7 @@ export async function signIn(
     return { error: "Enter your email and password." };
   }
 
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (!supabase) {
     return {
       error: "Supabase is not configured — add credentials to .env.local first.",
@@ -351,7 +349,7 @@ export async function signIn(
 }
 
 export async function signOut(): Promise<void> {
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (supabase) await supabase.auth.signOut();
 
   revalidatePath("/", "layout");

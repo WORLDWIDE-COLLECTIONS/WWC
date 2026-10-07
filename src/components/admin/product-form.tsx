@@ -181,7 +181,7 @@ export function ProductForm({ mode, productId, product }: ProductFormProps) {
             <Select
               id="status"
               name="status"
-              defaultValue={product?.status ?? "draft"}
+              defaultValue={product?.status ?? "active"}
             >
               <option value="draft">Draft</option>
               <option value="active">Active</option>

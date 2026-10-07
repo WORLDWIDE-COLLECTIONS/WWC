@@ -15,7 +15,7 @@ export async function createClient() {
   return createSupabaseClient(url, anonKey);
 }
 
-/** Cookie-aware client, or null when Supabase is not configured yet. */
+/** Stateless anon client for server-side reads, or null when unconfigured. */
 export async function maybeCreateClient(): Promise<SupabaseClient | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

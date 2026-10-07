@@ -1,6 +1,8 @@
+"use server";
+
 import type { ProductStatus, ProductWithRelations } from "@/types/product";
 import { PRODUCT_SELECT } from "@/lib/supabase/public";
-import { maybeCreateClient } from "@/lib/supabase/server";
+import { createAuthClient } from "@/lib/supabase/auth";
 
 function sortRelations(product: ProductWithRelations): ProductWithRelations {
   const byPosition = <T extends { position: number }>(rows: T[]) =>
@@ -19,7 +21,7 @@ function sortRelations(product: ProductWithRelations): ProductWithRelations {
 
 /** Signed-in admin check. Null when unconfigured or nobody is signed in. */
 export async function getAdminUser() {
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (!supabase) return null;
 
   const {
@@ -38,7 +40,7 @@ export type AdminProductFilter = {
 export async function getAdminProducts(
   filter: AdminProductFilter = {},
 ): Promise<ProductWithRelations[] | null> {
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (!supabase) return null;
 
   const {
@@ -79,7 +81,7 @@ export async function getAdminProducts(
 export async function getAdminProduct(
   id: string,
 ): Promise<ProductWithRelations | null> {
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (!supabase) return null;
 
   const {
@@ -113,7 +115,7 @@ export type CatalogueStats = {
 };
 
 export async function getCatalogueStats(): Promise<CatalogueStats | null> {
-  const supabase = await maybeCreateClient();
+  const supabase = await createAuthClient();
   if (!supabase) return null;
 
   const {

@@ -4,6 +4,7 @@ import * as React from "react";
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 
 import { signIn } from "@/lib/admin/actions";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -85,10 +86,12 @@ export function AdminLoginForm({ next }: { next?: string }) {
         Sign in
       </Button>
 
-      <p className="text-center text-xs leading-relaxed text-muted">
-        Sign-in activates once Supabase credentials are configured in
-        <span className="text-ink"> .env.local</span>.
-      </p>
+      {!isSupabaseConfigured() ? (
+        <p className="text-center text-xs leading-relaxed text-muted">
+          Sign-in activates once Supabase credentials are configured in
+          <span className="text-ink"> .env.local</span>.
+        </p>
+      ) : null}
     </form>
   );
 }
