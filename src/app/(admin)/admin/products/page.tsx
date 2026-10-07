@@ -5,8 +5,11 @@ import { Package, Pencil, Trash } from "lucide-react";
 import { ProductFilters } from "@/components/admin/product-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
+import { useToast } from "@/components/ui/toast";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { deleteProduct } from "@/lib/admin/actions";
 import { getAdminProducts } from "@/lib/admin/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { formatPrice } from "@/lib/utils";
@@ -50,6 +53,36 @@ function AdminProductsPage() {
   }, [search, status]);
 
   const hasFilters = Boolean(search) || status !== "all";
+
+  const { toast } = useToast();
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const handleDelete = () => {
+    const id = confirmId;
+    if (!id) return;
+
+    startTransition(async () => {
+      const result = await deleteProduct(id);
+
+      if (result.ok) {
+        toast({
+          title: "Product deleted",
+          description: "The record and its images were removed.",
+          variant: "success",
+        });
+        setProducts((current) => current.filter((p) => p && p.id !== id));
+        setConfirmId(null);
+        return;
+      }
+
+      toast({
+        title: "Could not delete product",
+        description: result.error,
+        variant: "error",
+      });
+    });
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -124,20 +157,28 @@ function AdminProductsPage() {
                   <span className="col-span-4 text-sm font-medium uppercase text-graphite md:col-span-2">
                     {prod.status}
                   </span>
-                  <span className="col-span-4 flex items-center justify-end gap-2 md:col-span-1">
+                  <span className="col-span-4 flex flex-wrap items-center justify-end gap-2 md:col-span-1">
                     <Badge variant={statusVariant[prod.status as ProductStatus]}>
                       {prod.status}
                     </Badge>
-                    <Pencil
-                      size={3}
-                      className="size-3 text-muted"
-                      aria-hidden="true"
-                    />
-                    <Trash
-                      size={3}
-                      className="size-3 text-muted"
+                    <Button
+                      href={`/admin/products/${prod.id}/edit`}
+                      variant="ghost"
+                      size="sm"
+                      className="w-9 px-0"
+                    >
+                      <Pencil className="size-3.5" />
+                      <span className="sr-only">Edit {prod.name}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-9 px-0"
                       aria-label={`Delete ${prod.name}`}
-                    />
+                      onClick={() => setConfirmId(prod.id)}
+                    >
+                      <Trash className="size-3.5" />
+                    </Button>
                   </span>
                 </li>
               );
@@ -167,6 +208,38 @@ function AdminProductsPage() {
           />
         )}
       </div>
+
+      <Modal
+        open={confirmId !== null}
+        onClose={() => setConfirmId(null)}
+        title="Delete this product?"
+        description="This removes the record, its images and its variants from Supabase."
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setConfirmId(null)}
+            >
+              Keep product
+            </Button>
+            <Button
+              variant="accent"
+              type="button"
+              loading={pending}
+              onClick={handleDelete}
+            >
+              Delete permanently
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm leading-relaxed text-muted">
+          The product will disappear from the storefront immediately. This
+          action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }
