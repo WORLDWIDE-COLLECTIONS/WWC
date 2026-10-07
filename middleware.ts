@@ -6,13 +6,15 @@ const ADMIN_PREFIX = "/admin";
  * Protect admin routes: /admin, /admin/products, /admin/products/new, /admin/products/[id]/edit
  * Unauthenticated users are redirected to /admin/login
  */
-export async function middleware(request: any) {
+import type { NextRequest } from "next/server";
+
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl?.pathname || "";
 
   // Check if the path starts with /admin
   if (path.startsWith(ADMIN_PREFIX)) {
     // Public routes that don't require authentication
-    const publicRoutes = ["/admin/login"];
+    const publicRoutes = ["/admin/login", "/auth/admin/login"];
 
     // If the user is trying to access a public admin route, allow it
     if (publicRoutes.includes(path)) {

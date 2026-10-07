@@ -1,21 +1,17 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { useToast } from "@/components/ui/toast";
 
 import Image from "next/image";
 import { X, Plus, Minus } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
   const { cart, setQuantity, remove } = useCart();
-  const { toast } = useToast();
+
   const subtotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
@@ -61,12 +57,12 @@ export function CartDrawer() {
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1">
-                      <Link
+                      <a
                         href={`/product/${item.productId}`}
                         className="product-name text-ink transition-colors hover:text-gilt"
                       >
                         {item.name}
-                      </Link>
+                      </a>
                       <span className="text-xs uppercase tracking-[0.16em] text-muted">
                         Size {item.size}
                         {item.color ? ` · ${item.color}` : ""}
@@ -111,12 +107,11 @@ export function CartDrawer() {
             ))}
           </ul>
         )}
-      </div>
-
-      <div className="border-t border-line px-5 py-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted">Subtotal</span>
-          <span className="font-medium text-ink">{formatPrice(subtotal)}</span>
+        <div className="border-t border-line px-5 py-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted">Subtotal</span>
+            <span className="font-medium text-ink">{formatPrice(subtotal)}</span>
+          </div>
         </div>
       </div>
     </Drawer>

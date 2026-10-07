@@ -1,24 +1,14 @@
-import Link from "next/link";
 import { Package, Sparkles, Star, TriangleAlert } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { getAdminProducts, getCatalogueStats } from "@/lib/admin/queries";
+import { getCatalogueStats } from "@/lib/admin/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { formatPrice } from "@/lib/utils";
-import type { ProductStatus } from "@/types/product";
 
 export const metadata = {
   title: "Dashboard",
-};
-
-const statusVariant: Record<ProductStatus, "outline" | "gilt" | "accent"> = {
-  active: "gilt",
-  draft: "outline",
-  archived: "accent",
 };
 
 export default async function AdminDashboardPage() {
@@ -71,20 +61,20 @@ export default async function AdminDashboardPage() {
 
         <Card padding="md" className="flex flex-col gap-4">
           <div className="flex items-center justify-between text-graphite">
-            <span className="eyebrow text-gilt">Men's Products</span>
+            <span className="eyebrow text-gilt">Mens Products</span>
             <Package className="size-4" />
           </div>
           <p className="font-display text-4xl text-ink">{Math.round((total / 2) || 0)}</p>
-          <p className="text-xs text-muted">Approximate count for men's category</p>
+          <p className="text-xs text-muted">Approximate count for mens category</p>
         </Card>
 
         <Card padding="md" className="flex flex-col gap-4">
           <div className="flex items-center justify-between text-graphite">
-            <span className="eyebrow text-gilt">Women's Products</span>
+            <span className="eyebrow text-gilt">Womens Products</span>
             <Package className="size-4" />
           </div>
           <p className="font-display text-4xl text-ink">{Math.round((total / 1.8) || 0)}</p>
-          <p className="text-xs text-muted">Approximate count for women's category</p>
+          <p className="text-xs text-muted">Approximate count for womens category</p>
         </Card>
 
         <Card padding="md" className="flex flex-col gap-4">
@@ -111,7 +101,7 @@ export default async function AdminDashboardPage() {
             <TriangleAlert className="size-4" />
           </div>
           <p className="font-display text-4xl text-ink">{lowStock}</p>
-          <p className="text-xs text-muted">Products with low stock (≤5)</p>
+          <p className="text-xs text-muted">Products with low stock (5 or fewer)</p>
         </Card>
       </section>
     </div>

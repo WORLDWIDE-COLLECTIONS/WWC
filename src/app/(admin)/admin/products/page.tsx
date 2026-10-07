@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { Package, Pencil, Trash } from "lucide-react";
 
 import { ProductFilters } from "@/components/admin/product-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getAdminProducts } from "@/lib/admin/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { formatPrice } from "@/lib/utils";
@@ -14,17 +14,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import type { ProductStatus } from "@/types/product";
 
-export const metadata = {
-  title: "Products",
-};
-
 const statusVariant: Record<ProductStatus, "outline" | "gilt" | "accent"> = {
   active: "gilt",
   draft: "outline",
   archived: "accent",
 };
 
-export default async function AdminProductsPage() {
+function AdminProductsPage() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q");
   const search = q !== null && typeof q === "string" ? q.trim() : undefined;
@@ -34,9 +30,24 @@ export default async function AdminProductsPage() {
       : "all";
   const status = rawStatus as ProductStatus | "all";
 
-  const products = isSupabaseConfigured()
-    ? await getAdminProducts({ search, status })
-    : null;
+  const [products, setProducts] = useState<({
+  id: string;
+  name: string;
+  slug: string;
+  gender: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: ProductStatus;
+} | null)[]>([]);
+
+  useEffect(() => {
+    if (isSupabaseConfigured()) {
+      getAdminProducts({ search, status }).then((products) => {
+        setProducts(products as ({ id: string; name: string; slug: string; gender: string; category: string; price: number; stock: number; status: ProductStatus; } | null)[]);
+      });
+    }
+  }, [search, status]);
 
   const hasFilters = Boolean(search) || status !== "all";
 
@@ -159,3 +170,5 @@ export default async function AdminProductsPage() {
     </div>
   );
 }
+
+export default AdminProductsPage;
