@@ -1,6 +1,8 @@
-export type ProductCategory = "men" | "women";
+export type ProductCategory = "men" | "women" | "unisex";
 
 export type ProductStatus = "active" | "draft" | "archived";
+
+export type ProductGender = "men" | "women" | "unisex";
 
 export type ProductColor = {
   id: string;
@@ -32,6 +34,7 @@ export type Product = {
   name: string;
   description: string | null;
   category: ProductCategory;
+  gender: ProductGender;
   price: number;
   compare_at_price: number | null;
   stock: number;

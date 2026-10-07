@@ -1,14 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import { Package, Pencil, Plus } from "lucide-react";
+import { Package, Pencil, Trash } from "lucide-react";
 
 import { ProductFilters } from "@/components/admin/product-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/ui/page-header";
-import { formatPrice } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 import { getAdminProducts } from "@/lib/admin/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { formatPrice } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ProductStatus } from "@/types/product";
 
 export const metadata = {
@@ -21,14 +24,14 @@ const statusVariant: Record<ProductStatus, "outline" | "gilt" | "accent"> = {
   archived: "accent",
 };
 
-export default async function AdminProductsPage(
-  props: PageProps<"/admin/products">,
-) {
-  const searchParams = await props.searchParams;
-  const search =
-    typeof searchParams.q === "string" ? searchParams.q.trim() : undefined;
+export default async function AdminProductsPage() {
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q");
+  const search = q !== null && typeof q === "string" ? q.trim() : undefined;
   const rawStatus =
-    typeof searchParams.status === "string" ? searchParams.status : "all";
+    typeof searchParams.get("status") === "string"
+      ? searchParams.get("status")
+      : "all";
   const status = rawStatus as ProductStatus | "all";
 
   const products = isSupabaseConfigured()
@@ -45,7 +48,7 @@ export default async function AdminProductsPage(
         description="Every garment in the store — pricing, stock, publishing status and merchandising flags."
         actions={
           <Button href="/admin/products/new">
-            <Plus className="size-4" />
+            <Package className="size-4" />
             New product
           </Button>
         }
@@ -55,52 +58,79 @@ export default async function AdminProductsPage(
 
       <div className="border border-line bg-chalk">
         <div className="hidden grid-cols-12 gap-4 border-b border-line px-5 py-3 md:grid">
-          <span className="eyebrow col-span-5 text-muted">Product</span>
+          <span className="eyebrow col-span-5 text-muted">Image</span>
+          <span className="eyebrow col-span-2 text-muted">Product</span>
           <span className="eyebrow col-span-2 text-muted">Category</span>
-          <span className="eyebrow col-span-2 text-muted">Price</span>
+          <span className="eyebrow col-span-1 text-muted">Gender</span>
+          <span className="eyebrow col-span-1 text-muted">Price</span>
           <span className="eyebrow col-span-1 text-muted">Stock</span>
-          <span className="eyebrow col-span-2 text-right text-muted">
-            Status
-          </span>
+          <span className="eyebrow col-span-2 text-muted">Status</span>
+          <span className="eyebrow col-span-2 text-right text-muted">Actions</span>
         </div>
 
         {products && products.length > 0 ? (
           <ul>
-            {products.map((product) => (
-              <li key={product.id}>
-                <Link
-                  href={`/admin/products/${product.id}/edit`}
-                  className="grid grid-cols-12 items-center gap-4 border-b border-line px-5 py-4 transition-colors last:border-b-0 hover:bg-bone/60"
-                >
+            {products.map((product) => {
+              const prod =
+                product as
+                  | {
+                    id: string;
+                    name: string;
+                    slug: string;
+                    gender: string;
+                    category: string;
+                    price: number;
+                    stock: number;
+                    status: ProductStatus;
+                  }
+                  | undefined;
+              if (!prod) return null;
+              return (
+                <li key={prod.id} className="grid grid-cols-12 items-center gap-4 border-b border-line px-5 py-4 transition-colors last:border-b-0 hover:bg-bone/60">
                   <span className="col-span-12 flex items-center gap-3 md:col-span-5">
                     <span className="grid size-10 shrink-0 place-items-center border border-line bg-bone text-muted">
                       <Package className="size-4" />
                     </span>
                     <span className="flex flex-col">
                       <span className="text-sm font-medium text-ink">
-                        {product.name}
+                        {prod.name}
                       </span>
-                      <span className="text-xs text-muted">/{product.slug}</span>
+                      <span className="text-xs text-muted">/{prod.slug}</span>
                     </span>
                   </span>
-                  <span className="col-span-6 text-sm capitalize text-graphite md:col-span-2">
-                    {product.category}
+                  <span className="col-6 text-sm capitalize text-graphite md:col-span-2">
+                    {prod.category}
                   </span>
-                  <span className="col-span-6 text-sm text-ink md:col-span-2">
-                    {formatPrice(product.price)}
+                  <span className="col-span-3 text-sm text-graphite">
+                    {prod.gender}
                   </span>
-                  <span className="col-span-6 text-sm text-graphite md:col-span-1">
-                    {product.stock}
+                  <span className="col-span-3 text-sm text-ink md:col-span-1">
+                    {formatPrice(prod.price)}
                   </span>
-                  <span className="col-span-6 flex items-center justify-end gap-3 md:col-span-2">
-                    <Badge variant={statusVariant[product.status]}>
-                      {product.status}
+                  <span className="col-span-3 text-sm text-graphite md:col-span-1">
+                    {prod.stock}
+                  </span>
+                  <span className="col-span-4 text-sm font-medium uppercase text-graphite md:col-span-2">
+                    {prod.status}
+                  </span>
+                  <span className="col-span-4 flex items-center justify-end gap-2 md:col-span-1">
+                    <Badge variant={statusVariant[prod.status as ProductStatus]}>
+                      {prod.status}
                     </Badge>
-                    <Pencil className="size-3.5 text-muted" aria-hidden="true" />
+                    <Pencil
+                      size={3}
+                      className="size-3 text-muted"
+                      aria-hidden="true"
+                    />
+                    <Trash
+                      size={3}
+                      className="size-3 text-muted"
+                      aria-label={`Delete ${prod.name}`}
+                    />
                   </span>
-                </Link>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <EmptyState

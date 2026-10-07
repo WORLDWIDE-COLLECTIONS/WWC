@@ -23,6 +23,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "11111111-1111-4111-8111-111111111111",
     slug: "oversized-logo-tee",
     name: "Oversized Logo Tee",
+    gender: "men",
     description:
       "Boxy, heavyweight cotton tee with a screen-printed Worldwide logo across the back. Dropped shoulders, ribbed collar and a relaxed drape built for layering.",
     category: "men",
@@ -57,6 +58,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "22222222-2222-4222-8222-222222222222",
     slug: "boxy-oxford-shirt",
     name: "Boxy Oxford Shirt",
+    gender: "men",
     description:
       "Cut wide through the body with a soft point collar. Woven from washed cotton oxford that breaks in with every wear.",
     category: "men",
@@ -88,6 +90,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "33333333-3333-4333-8333-333333333333",
     slug: "cargo-utility-pants",
     name: "Cargo Utility Pants",
+    gender: "men",
     description:
       "Straight-leg cargo in ripstop cotton with bellowed pockets and an adjustable hem tab.",
     category: "men",
@@ -116,6 +119,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "44444444-4444-4444-8444-444444444444",
     slug: "washed-denim-jacket",
     name: "Washed Denim Jacket",
+    gender: "men",
     description:
       "Rigid 13oz denim washed to a lived-in grey. Chest pockets, tonal stitching and a boxy cropped body.",
     category: "men",
@@ -146,6 +150,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "55555555-5555-4555-8555-555555555555",
     slug: "relaxed-chino-shorts",
     name: "Relaxed Chino Shorts",
+    gender: "men",
     description:
       "Knee-grazing chino shorts in brushed twill with a drawcord waist and side pockets.",
     category: "men",
@@ -175,6 +180,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "66666666-6666-4666-8666-666666666666",
     slug: "cropped-hoodie",
     name: "Cropped Hoodie",
+    gender: "women",
     description:
       "Loopback cotton hoodie cut short at the waist with a double-layer hood and ribbed cuffs.",
     category: "women",
@@ -206,6 +212,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "77777777-7777-4777-8777-777777777777",
     slug: "pleated-midi-skirt",
     name: "Pleated Midi Skirt",
+    gender: "women",
     description:
       "Sunray pleats that swing with every step, finished with a flat elastic waistband and a midi hem.",
     category: "women",
@@ -235,6 +242,7 @@ const PRODUCTS: ProductWithRelations[] = [
     id: "88888888-8888-4888-8888-888888888888",
     slug: "ribbed-tank-top",
     name: "Ribbed Tank Top",
+    gender: "women",
     description:
       "Fine-gauge ribbed tank with a square neckline and a close, second-skin fit.",
     category: "women",
